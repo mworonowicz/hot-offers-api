@@ -3,6 +3,9 @@
  */
 package com.ryanair.hackathon.hotOffers
 
-object HotOffersApp extends App with ApplicationContext with Routing {
-  println("Hello, world!")
+import com.ryanair.hackathon.hotOffers.airports.service.AirportService
+
+object HotOffersApp extends App with ApplicationContext {
+  val airports = AirportService.getAirports().run(httpClient)
+  airports.onComplete(println)
 }
