@@ -3,6 +3,8 @@
  */
 package com.ryanair.hackathon.hotOffers
 
+import akka.http.scaladsl.Http
+
 object HotOffersApp extends App with ApplicationContext with Routing {
-  println("Hello, world!")
+  Http().bindAndHandle(route, "0.0.0.0", 8080)
 }
