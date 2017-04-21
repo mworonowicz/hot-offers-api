@@ -3,15 +3,21 @@
  */
 package com.ryanair.hackathon.hotOffers.airports.controller
 
+import com.ryanair.hackathon.hotOffers.Controller
 import com.ryanair.hackathon.hotOffers.airports.AirportContext
+import com.ryanair.hackathon.hotOffers.airports.model.AirportJson._
 import com.ryanair.hackathon.hotOffers.airports.service.AirportService
 
-trait AirportController {
+trait AirportController extends Controller {
   airportContext: AirportContext =>
 
-  def getAirports() = {
-    path("airports")
+  def route = {
+    path("airports") {
+      get {
+        val airports = AirportService.getAirports().run(airportContext.httpClient)
+        complete(airports)
+      }
+    }
 
-    AirportService.getAirports().run(airportContext.httpClient)
   }
 }

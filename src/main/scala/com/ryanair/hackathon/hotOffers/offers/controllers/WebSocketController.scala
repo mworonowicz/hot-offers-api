@@ -5,8 +5,11 @@ import com.ryanair.hackathon.hotOffers.Controller
 
 trait WebSocketController extends Controller {
 
- def route: Route =
-   get {
-     complete("ok")
-   }
+  def route: Route =
+    path("test") {
+      get {
+        complete("ok")
+      }
+    }
+
 }

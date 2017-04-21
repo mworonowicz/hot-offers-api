@@ -3,9 +3,8 @@
  */
 package com.ryanair.hackathon.hotOffers
 
-import com.ryanair.hackathon.hotOffers.airports.service.AirportService
+import akka.http.scaladsl.Http
 
-object HotOffersApp extends App with ApplicationContext {
-  val airports = AirportService.getAirports().run(httpClient)
-  airports.onComplete(println)
+object HotOffersApp extends App with ApplicationContext with Routing {
+  Http().bindAndHandle(route, "0.0.0.0", 8080)
 }
