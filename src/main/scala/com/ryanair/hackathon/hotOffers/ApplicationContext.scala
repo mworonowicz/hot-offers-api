@@ -16,4 +16,5 @@ trait ApplicationContext {
     ActorMaterializer(ActorMaterializerSettings(system).withSupervisionStrategy(StreamSupervisionStrategy.decider))
   implicit val executionContext: ExecutionContext = materializer.executionContext
   val httpClient = new HttpClient()
+
 }

@@ -3,6 +3,6 @@
  */
 package com.ryanair.hackathon.hotOffers
 
-object HotOffersApp extends App with ApplicationContext {
+object HotOffersApp extends App with ApplicationContext with Routing {
   println("Hello, world!")
 }
