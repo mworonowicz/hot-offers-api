@@ -9,6 +9,7 @@ import com.ryanair.hackathon.hotOffers.users.model.UsersJson._
 import com.ryanair.hackathon.hotOffers.users.service.UserDetailsService
 
 trait UserDetailsController extends Controller {
+
   def route =
     pathPrefix("user-details") {
       pathEnd {
