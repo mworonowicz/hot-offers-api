@@ -1,4 +1,4 @@
-package com.ryanair.hackathon.hotOffers.offers.controllers
+package com.ryanair.hackathon.hotOffers.offers.controller
 
 import akka.http.scaladsl.server.Route
 import com.ryanair.hackathon.hotOffers.Controller

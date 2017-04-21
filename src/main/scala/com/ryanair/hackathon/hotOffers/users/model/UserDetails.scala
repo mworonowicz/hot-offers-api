@@ -8,6 +8,8 @@ import spray.json.{DefaultJsonProtocol, RootJsonFormat}
 
 case class UserDetails(userId: String, departureAirport: String, destinationAirports: List[String])
 
+case object UserSaved
+
 object UsersJson extends SprayJsonSupport with DefaultJsonProtocol {
   implicit val userDetailsJson: RootJsonFormat[UserDetails] = jsonFormat3(UserDetails)
 }

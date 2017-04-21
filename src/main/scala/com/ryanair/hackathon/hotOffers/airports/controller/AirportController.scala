@@ -12,12 +12,17 @@ trait AirportController extends Controller {
   airportContext: AirportContext =>
 
   def route = {
-    path("airports") {
-      get {
-        val airports = AirportService.getAirports().run(airportContext.httpClient)
-        complete(airports)
-      }
+    pathPrefix("airports") {
+      pathEnd {
+        get {
+          val airports = AirportService.getAirports().run(airportContext)
+          complete(airports)
+        }
+      } ~
+        path(Segment) { iataCode =>
+          val routes = AirportService.getRoutesFromAirport(iataCode).run(airportContext)
+          complete(routes)
+        }
     }
-
   }
 }

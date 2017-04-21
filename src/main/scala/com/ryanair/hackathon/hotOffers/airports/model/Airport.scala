@@ -8,6 +8,12 @@ import spray.json.{DefaultJsonProtocol, RootJsonFormat}
 
 case class Airport(iataCode: String, name: String)
 
+case class Route(airportFrom: String, airportTo: String)
+
+case class RouteDetails(iataCode: String, name: String)
+
 object AirportJson extends SprayJsonSupport with DefaultJsonProtocol {
   implicit val airportJson: RootJsonFormat[Airport] = jsonFormat2(Airport)
+  implicit val routeJson: RootJsonFormat[Route] = jsonFormat2(Route)
+  implicit val routeDetailsJson: RootJsonFormat[RouteDetails] = jsonFormat2(RouteDetails)
 }
