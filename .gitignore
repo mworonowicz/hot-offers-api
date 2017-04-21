@@ -1,0 +1,8 @@
+.idea/
+target
+*.iml
+log/
+.DS_Store
+ansible/.vagrant
+ansible/.galaxy
+ansible/*.retry
