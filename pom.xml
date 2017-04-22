@@ -73,11 +73,6 @@
             <version>${alpakka-sqs.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.ryanair.aws</groupId>
-            <artifactId>dynamodb-alpakka</artifactId>
-            <version>${dynamodb.version}</version>
-        </dependency>
-        <dependency>
             <groupId>net.logstash.logback</groupId>
             <artifactId>logstash-logback-encoder</artifactId>
             <version>4.9</version>
@@ -156,7 +151,7 @@
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
-                                        <Main-Class>com.ryanair.hackathon.hotOffers.App</Main-Class>
+                                        <Main-Class>com.ryanair.hackathon.hotOffers.HotOffersApp</Main-Class>
                                     </manifestEntries>
                                 </transformer>
                             </transformers>
