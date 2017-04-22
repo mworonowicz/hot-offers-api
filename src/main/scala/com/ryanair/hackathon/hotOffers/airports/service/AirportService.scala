@@ -8,7 +8,7 @@ import cats.data.ReaderT
 import cats.implicits._
 import com.ryanair.hackathon.hotOffers.airports.AirportContext
 import com.ryanair.hackathon.hotOffers.airports.model.AirportJson._
-import com.ryanair.hackathon.hotOffers.airports.model.{Airport, Route, RouteDetails}
+import com.ryanair.hackathon.hotOffers.airports.model.{Airport, GeoLocation, Route, RouteDetails}
 import com.typesafe.config.ConfigFactory
 import spray.json._
 
@@ -25,6 +25,19 @@ object AirportService {
         res.parseJson.convertTo[List[Airport]]
       })
     })
+
+  def getAirport(geoLocation: GeoLocation)(implicit executionContext: ExecutionContext):
+  ReaderT[Future, AirportContext, List[Airport]] = ReaderT((airportContext: AirportContext) => {
+    val config = ConfigFactory.load()
+    val geoLocationUri = config.getString("hot-offers.geolocation-uri")
+      .replaceAll("latparam", geoLocation.lat.toString)
+      .replaceAll("lonparam", geoLocation.lon.toString)
+    val request = HttpRequest(uri = geoLocationUri)
+    airportContext.httpClient.get(request).map(res => {
+      println(res)
+      res.parseJson.convertTo[List[Airport]]
+    })
+  })
 
   def getRoutesFromAirport(iataCode: String)(implicit executionContext: ExecutionContext):
   ReaderT[Future, AirportContext, List[RouteDetails]] = ReaderT((airportContext: AirportContext) => {

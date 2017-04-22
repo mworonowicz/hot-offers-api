@@ -6,6 +6,7 @@ package com.ryanair.hackathon.hotOffers.airports.controller
 import com.ryanair.hackathon.hotOffers.Controller
 import com.ryanair.hackathon.hotOffers.airports.AirportContext
 import com.ryanair.hackathon.hotOffers.airports.model.AirportJson._
+import com.ryanair.hackathon.hotOffers.airports.model.GeoLocation
 import com.ryanair.hackathon.hotOffers.airports.service.AirportService
 
 trait AirportController extends Controller {
@@ -15,9 +16,15 @@ trait AirportController extends Controller {
     pathPrefix("airports") {
       pathEnd {
         get {
-          val airports = AirportService.getAirports().run(airportContext)
-          complete(airports)
-        }
+          parameters(('lat.as[Double], 'lon.as[Double])).as(GeoLocation) { geoLocation =>
+            val airport = AirportService.getAirport(geoLocation).run(airportContext)
+            complete(airport)
+          }
+        } ~
+          get {
+            val airports = AirportService.getAirports().run(airportContext)
+            complete(airports)
+          }
       } ~
         path(Segment) { iataCode =>
           val routes = AirportService.getRoutesFromAirport(iataCode).run(airportContext)
@@ -26,3 +33,4 @@ trait AirportController extends Controller {
     }
   }
 }
+
