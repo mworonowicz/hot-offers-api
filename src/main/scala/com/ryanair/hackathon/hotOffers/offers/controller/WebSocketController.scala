@@ -4,7 +4,6 @@ import akka.http.scaladsl.model.ws.{BinaryMessage, Message, TextMessage}
 import akka.http.scaladsl.server.Route
 import akka.stream.scaladsl.{Flow, Sink, Source}
 import akka.stream.{ActorAttributes, Supervision}
-import cats.implicits._
 import com.ryanair.hackathon.hotOffers.Controller
 import com.ryanair.hackathon.hotOffers.offers.OffersContext
 import com.ryanair.hackathon.hotOffers.offers.model.OffersJson._
@@ -30,11 +29,7 @@ trait WebSocketController extends Controller with LazyLogging {
         tm.textStream.flatMapConcat(userId => {
           logger.info(s" User $userId has been connected")
           Source.tick(0 seconds, context.notificationConfig.interval, ())
-            .mapAsync(1)(_ =>
-              OfferService.getOffersForUser(userId).map(offerOpt =>
-                offerOpt.getOrElse(throw new RuntimeException("User does not exist"))
-              ).run(context)
-            )
+            .mapAsync(1)(_ => OfferService.getOffersForUser(userId).run(context))
             .withAttributes(ActorAttributes.supervisionStrategy(Supervision.stoppingDecider))
         }).map(o => o.toJson.toString)
 
