@@ -35,7 +35,7 @@ object OfferService extends LazyLogging {
 
     val request = HttpRequest(uri = cheapestOffersUri)
     httpClient.get(request).map(res => {
-      logger.info(res)
+      logger.info(s"Retrieving fares for user ${userDetails.userId}: $res")
       res.parseJson.convertTo[OfferResult]
     })
   })

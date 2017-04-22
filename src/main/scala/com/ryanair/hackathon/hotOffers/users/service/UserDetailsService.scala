@@ -18,6 +18,7 @@ object UserDetailsService {
 
   def saveDetails(userDetails: UserDetails): Future[UserSaved.type] = {
     db.put(userDetails.userId, userDetails)
+    offersDb.remove(userDetails.userId)
     Future.successful(UserSaved)
   }
 
