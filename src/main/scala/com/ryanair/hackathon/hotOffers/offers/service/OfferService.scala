@@ -6,7 +6,8 @@ package com.ryanair.hackathon.hotOffers.offers.service
 import java.time.LocalDate
 
 import akka.http.scaladsl.model.HttpRequest
-import cats.data.{OptionT, ReaderT}
+import cats.data.{EitherT, ReaderT}
+import cats._
 import cats.implicits._
 import com.ryanair.hackathon.hotOffers.common.httpClient.HttpClient
 import com.ryanair.hackathon.hotOffers.offers.OffersContext
@@ -36,14 +37,14 @@ object OfferService {
     httpClient.get(request).map(_.parseJson.convertTo[OfferResult])
   })
 
-  def getOffersForUser(userId: String): ReaderT[Future, OffersContext, Option[OfferResult]] = ReaderT {
+  def getOffersForUser(userId: String): ReaderT[Future, OffersContext, OfferResult] = ReaderT {
     context =>
       import context._
       val offers = for {
-        userDetails <- OptionT.fromOption[Future](UserDetailsService.getAll.find(_.userId == userId))
-        offers <-  OptionT(getCheapestOffers(userDetails).run(httpClient).map(Option(_)))
+        userDetails <- EitherT.fromEither[Future](UserDetailsService.getAll.find(_.userId == userId).toRight("User not found"))
+        offers <- EitherT.liftT[Future,String,OfferResult](getCheapestOffers(userDetails).run(httpClient))
       } yield offers
-      offers.value
+      offers.valueOr(msg => throw new RuntimeException(msg))
   }
 
 }
