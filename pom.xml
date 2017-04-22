@@ -93,6 +93,11 @@
             <version>${akka.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>ch.megard</groupId>
+            <artifactId>akka-http-cors_2.12</artifactId>
+            <version>0.2.1</version>
+        </dependency>
     </dependencies>
 
     <repositories>
