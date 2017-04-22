@@ -31,7 +31,9 @@ trait WebSocketController extends Controller with LazyLogging {
           Source.tick(0 seconds, context.notificationConfig.interval, ())
             .mapAsync(1)(_ => OfferService.getOffersForUser(userId).run(context))
             .withAttributes(ActorAttributes.supervisionStrategy(Supervision.stoppingDecider))
-        }).map(o => o.toJson.toString)
+        })
+          .filter(o => o.total > 0)
+          .map(o => o.toJson.toString)
 
       case bm: BinaryMessage =>
         // ignore binary messages but drain content to avoid the stream being clogged

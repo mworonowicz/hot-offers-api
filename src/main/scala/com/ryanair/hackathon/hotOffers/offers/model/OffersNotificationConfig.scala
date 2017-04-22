@@ -9,7 +9,7 @@ import scala.concurrent.duration.FiniteDuration
 
 object OffersNotificationConfig {
 
-  private val intervalInSeconds = ConfigFactory.load.getDuration("hot-offers.notification-interval", TimeUnit.SECONDS)
+  private val intervalInSeconds = ConfigFactory.load.getDuration("notification.interval", TimeUnit.SECONDS)
 
   def fromFile() = OffersNotificationConfig(FiniteDuration(intervalInSeconds, TimeUnit.SECONDS))
 
