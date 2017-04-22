@@ -26,10 +26,12 @@ trait WebSocketController extends Controller with LazyLogging {
   private def createOffersNotificationFlow =
     Flow[Message].map {
       case tm: TextMessage =>
-        tm.textStream.flatMapConcat(userId => {
-          logger.info(s" User $userId has been connected")
+        tm.textStream.flatMapConcat(userIdWithSession => {
+          logger.info(s" User $userIdWithSession has been connected")
+          val userInfo = userIdWithSession.split(":")
+          val (userId,session) = (userInfo(0),userInfo(1))
           Source.tick(0 seconds, context.notificationConfig.interval, ())
-            .mapAsync(1)(_ => OfferService.getOffersForUser(userId).run(context))
+            .mapAsync(1)(_ => OfferService.getOffersForUser(userId,session).run(context))
             .withAttributes(ActorAttributes.supervisionStrategy(Supervision.stoppingDecider))
         })
           .filter(o => o.total > 0)
