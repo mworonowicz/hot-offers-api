@@ -17,6 +17,12 @@ object UserDetailsService {
 
 
   def saveDetails(userDetails: UserDetails): Future[UserSaved.type] = {
+    db.asScala.get(userDetails.userId).filter(_ != userDetails)
+      .foreach { _ =>
+        offersDb.keys().asScala
+          .filter(_.startsWith(s"${userDetails.userId}:"))
+          .foreach(offersDb.remove)
+      }
     db.put(userDetails.userId, userDetails)
     Future.successful(UserSaved)
   }
@@ -25,22 +31,21 @@ object UserDetailsService {
     db.elements().asScala.toList
   }
 
-  def saveOffersForUser(user: UserDetails, session:String, offers: List[Offer]): Future[OfferResult] = {
-    val result = offersDb.asScala.get(session) match {
+  def saveOffersForUser(user: UserDetails, session: String, offers: List[Offer]): Future[OfferResult] = {
+    val result = offersDb.asScala.get(s"${user.userId}:$session") match {
       case Some(offersMap) =>
         val filtered = for {
           offer <- offers
           if offer.outbound.price.value < offersMap.getOrElse(offer.outbound.arrivalAirport.iataCode, Float.MaxValue)
-          if offer.outbound.price.value <= user.budget
         } yield offer
 
         filtered.take(1).map(firstOffer => {
-          offersDb.put(session, offersMap.updated(firstOffer.outbound.arrivalAirport.iataCode, firstOffer.outbound.price.value))
+          offersDb.put(s"${user.userId}:$session", offersMap.updated(firstOffer.outbound.arrivalAirport.iataCode, firstOffer.outbound.price.value))
           firstOffer
         })
       case None =>
         val offersToStore = offers.take(1)
-        offersDb.put(session, offersToMap(offersToStore))
+        offersDb.put(s"${user.userId}:$session", offersToMap(offersToStore))
         offersToStore
 
     }
