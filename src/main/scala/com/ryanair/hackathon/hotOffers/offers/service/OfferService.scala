@@ -49,7 +49,7 @@ object OfferService extends LazyLogging {
       import context._
       val offers = for {
         userDetails <- EitherT.fromEither[Future](UserDetailsService.getAll.find(_.userId == userId).toRight("User not found"))
-        offers <- EitherT.liftT[Future, String, OfferResult](getCheapestOffers(userDetails).run(httpClient))
+        offers <- EitherT.liftT[Future, String, OfferResult](getCheapestOffers(userDetails, session).run(httpClient))
         savedOffers <- EitherT.liftT[Future, String, OfferResult](UserDetailsService.saveOffersForUser(userDetails, session, offers.fares))
       } yield savedOffers
       offers.valueOr(msg => throw new RuntimeException(msg))
