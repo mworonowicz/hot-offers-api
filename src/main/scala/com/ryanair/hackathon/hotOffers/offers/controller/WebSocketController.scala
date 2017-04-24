@@ -29,12 +29,11 @@ trait WebSocketController extends Controller with LazyLogging {
         tm.textStream.flatMapConcat(userIdWithSession => {
           logger.info(s" User $userIdWithSession has been connected")
           val userInfo = userIdWithSession.split(":")
-          val (userId,session) = (userInfo(0),userInfo(1))
+          val (userId, session) = (userInfo(0), userInfo(1))
           Source.tick(0 seconds, context.notificationConfig.interval, ())
-            .mapAsync(1)(_ => OfferService.getOffersForUser(userId,session).run(context))
-            .withAttributes(ActorAttributes.supervisionStrategy(Supervision.stoppingDecider))
+            .mapAsync(1)(_ => OfferService.getOffersForUser(userId, session).run(context))
+            .withAttributes(ActorAttributes.supervisionStrategy(Supervision.restartingDecider))
         })
-          .filter(o => o.total > 0)
           .map(o => o.toJson.toString)
 
       case bm: BinaryMessage =>
@@ -42,7 +41,4 @@ trait WebSocketController extends Controller with LazyLogging {
         bm.dataStream.runWith(Sink.ignore)
         Source.empty
     }.flatMapConcat(identity).map(TextMessage(_))
-      .recover {
-        case ex => TextMessage("user not found")
-      }
 }

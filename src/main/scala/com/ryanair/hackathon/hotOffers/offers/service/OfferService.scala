@@ -22,7 +22,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 object OfferService extends LazyLogging {
 
-  def getCheapestOffers(userDetails: UserDetails)(implicit executionContext: ExecutionContext):
+  def getCheapestOffers(userDetails: UserDetails, session:String)(implicit executionContext: ExecutionContext):
   ReaderT[Future, HttpClient, OfferResult] = ReaderT((httpClient: HttpClient) => {
     val departureAirport = userDetails.departureAirport
     val arrivalAirports = userDetails.destinationAirports.mkString(",")
@@ -35,7 +35,7 @@ object OfferService extends LazyLogging {
 
     val request = HttpRequest(uri = cheapestOffersUri)
     httpClient.get(request).map(res => {
-      logger.info(s"Retrieving fares for user ${userDetails.userId}: $res")
+      logger.info(s"Retrieving fares for user ${userDetails.userId}:${session} - $res")
       res.parseJson.convertTo[OfferResult]
     })
   })
@@ -45,7 +45,7 @@ object OfferService extends LazyLogging {
       import context._
       val offers = for {
         userDetails <- EitherT.fromEither[Future](UserDetailsService.getAll.find(_.userId == userId).toRight("User not found"))
-        offers <- EitherT.liftT[Future, String, OfferResult](getCheapestOffers(userDetails).run(httpClient))
+        offers <- EitherT.liftT[Future, String, OfferResult](getCheapestOffers(userDetails,session).run(httpClient))
         savedOffers <- EitherT.liftT[Future, String, OfferResult](UserDetailsService.saveOffersForUser(userDetails,session, offers.fares))
       } yield savedOffers
       offers.valueOr(msg => throw new RuntimeException(msg))
