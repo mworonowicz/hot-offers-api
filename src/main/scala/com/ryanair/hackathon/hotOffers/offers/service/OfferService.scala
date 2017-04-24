@@ -38,15 +38,19 @@ object OfferService extends LazyLogging {
       logger.info(s"Retrieving fares for user ${userDetails.userId}:${session} - $res")
       res.parseJson.convertTo[OfferResult]
     })
+      .map(offers => {
+        val filtered = offers.fares.filter(o => o.outbound.price.value <= userDetails.budget)
+        OfferResult(filtered.size, filtered)
+      })
   })
 
-  def getOffersForUser(userId: String,session: String): ReaderT[Future, OffersContext, OfferResult] = ReaderT {
+  def getOffersForUser(userId: String, session: String): ReaderT[Future, OffersContext, OfferResult] = ReaderT {
     context =>
       import context._
       val offers = for {
         userDetails <- EitherT.fromEither[Future](UserDetailsService.getAll.find(_.userId == userId).toRight("User not found"))
-        offers <- EitherT.liftT[Future, String, OfferResult](getCheapestOffers(userDetails,session).run(httpClient))
-        savedOffers <- EitherT.liftT[Future, String, OfferResult](UserDetailsService.saveOffersForUser(userDetails,session, offers.fares))
+        offers <- EitherT.liftT[Future, String, OfferResult](getCheapestOffers(userDetails).run(httpClient))
+        savedOffers <- EitherT.liftT[Future, String, OfferResult](UserDetailsService.saveOffersForUser(userDetails, session, offers.fares))
       } yield savedOffers
       offers.valueOr(msg => throw new RuntimeException(msg))
   }
