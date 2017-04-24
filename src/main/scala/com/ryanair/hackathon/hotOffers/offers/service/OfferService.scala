@@ -22,7 +22,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 object OfferService extends LazyLogging {
 
-  def getCheapestOffers(userDetails: UserDetails)(implicit executionContext: ExecutionContext):
+  def getCheapestOffers(userDetails: UserDetails, session:String)(implicit executionContext: ExecutionContext):
   ReaderT[Future, HttpClient, OfferResult] = ReaderT((httpClient: HttpClient) => {
     val departureAirport = userDetails.departureAirport
     val arrivalAirports = userDetails.destinationAirports.mkString(",")
@@ -35,7 +35,7 @@ object OfferService extends LazyLogging {
 
     val request = HttpRequest(uri = cheapestOffersUri)
     httpClient.get(request).map(res => {
-      logger.info(s"Retrieving fares for user ${userDetails.userId}: $res")
+      logger.info(s"Retrieving fares for user ${userDetails.userId}:${session} - $res")
       res.parseJson.convertTo[OfferResult]
     })
       .map(offers => {
